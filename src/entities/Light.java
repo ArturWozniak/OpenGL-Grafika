@@ -13,9 +13,6 @@ public class Light {
         this.position = position;
         this.colour = colour;
     }
-    public void move(){
-
-    }
 
 
     public Vector3f getPosition() {

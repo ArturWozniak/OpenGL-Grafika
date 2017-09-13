@@ -17,12 +17,12 @@ public class Player extends Entity {
 
     private boolean alreadyJumped = false;
     private static final float RUN_SPEED = 20;
-    private static final float TURN_SPEED = 160;
+    private static final float TURN_SPEED = 140;
 
     private static final float TERRAIN_H = 0;
 
-    private static final float GRAVITY = -50;
-    private static final float JUMP_POWER = 20;
+    private static final float GRAVITY = -40;
+    private static final float JUMP_POWER = 15;
 
     private float currentSpeed = 0;
     private float currentTurnSpeed = 0;
@@ -37,13 +37,13 @@ public class Player extends Entity {
     public void move(Vector3f ghostsPositon){
         //kolizja 105 i 95 na x
             if ((getPosition().x >= 104)){
-                setPosition(new Vector3f(103.9f,getPosition().y,getPosition().z));
+                setPosition(new Vector3f(103.96f,getPosition().y,getPosition().z));
             } else if ((getPosition().x <= 96)){
-                setPosition(new Vector3f(96.1f,getPosition().y,getPosition().z));
+                setPosition(new Vector3f(96.04f,getPosition().y,getPosition().z));
             }
             float tempZ = getPosition().z;
-            if (restrictedZ.contains((int)tempZ)){
-                setPosition(new Vector3f(getPosition().x,getPosition().y,tempZ - 4));
+            if (restrictedZ.contains(Math.round(tempZ)) || restrictedZ.contains(Math.round(tempZ+1))){
+                setPosition(new Vector3f(getPosition().x,getPosition().y,tempZ - 0.51f));
             }
             checkInputs();
             super.increaseRotation(0, currentTurnSpeed * DisplayManager.getFrameTimeSeconds(), 0);

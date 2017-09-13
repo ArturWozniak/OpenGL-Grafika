@@ -85,6 +85,7 @@ public class Entity {
     public boolean isDoRender() {
         return doRender;
     }
+
     public void setX(int x){
         position.x = x;
     }
@@ -92,7 +93,7 @@ public class Entity {
         position.z = z;
     }
 
-    public void setDoRender(boolean doRender) {
-        this.doRender = doRender;
+    public void switchDoRender(boolean val) {
+        this.doRender = val;
     }
 }
