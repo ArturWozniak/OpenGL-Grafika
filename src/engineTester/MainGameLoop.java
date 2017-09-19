@@ -19,8 +19,9 @@ import textures.ModelTexture;
  */
 public class MainGameLoop {
     public static void main(String[] args) {
-        final int iterator = 10;
+        final int iterator = 5;
         int zStart = -50;
+        boolean reSet = true;
 
 
         DisplayManager.createDisplay();
@@ -84,31 +85,56 @@ public class MainGameLoop {
             walls[i] = new Entity(wallTexturedModel,new Vector3f(100,-0.4f,zStart),0,0,0,1);
             zStart += 15;
         }
-        Entity stone = new Entity(stoneTexturedModel,new Vector3f(100,-1,10),0,90f,0,0.5f);
-        Entity spikes = new Entity(spikesTexturedModel,new Vector3f(100,-1,-0),0,90f,0,1);
+        Entity stone = new Entity(stoneTexturedModel,new Vector3f(102,-1,-5),0,90f,0,1.25f);
+        Entity spikes = new Entity(spikesTexturedModel,new Vector3f(100,-1,5),0,90f,0,1);
         Entity barrier = new Entity(wallTexturedModel,new Vector3f(100,-1,-50),0,90f,0,1);
-        Entity lava = new Entity(lavaTexturedModel,new Vector3f(100,0,-5),180f,0,0,1);
+        Entity lava = new Entity(lavaTexturedModel,new Vector3f(100,-0.2f,-15),180f,0,0,1.7f);
 
         //kamera
         Camera camera = new Camera(player);
 
 
         while(!Display.isCloseRequested()){
+            Vector3f ghostPos = ghost.getPosition();
             playersLight.setPosition(camera.getPosition()); //latarka gracza
-            ghostsLight.setPosition(ghost.getPosition()); //swiatlo czerwone ducha
+            ghostsLight.setPosition(ghostPos); //swiatlo czerwone ducha
             camera.move();
-            player.move(ghost.getPosition());
+            player.move(ghostPos);
             ghost.move();
             entityRenderer.prepare();
             shader.start();
             shader.loadSkyColour();
             shader.loadLight(playersLight);
-            //duch swieci jak w odlegosci 20 max
+            //duch swieci jak w odlegosci 14 max
             if (!(Math.abs(player.getPosition().z - ghost.getPosition().z) >= 14))
                 shader.loadLight(ghostsLight);
             shader.loadViewMatrix(camera);
             entityRenderer.render(player,shader);
             entityRenderer.render(ghost,shader);
+            if (Keyboard.isKeyDown(Keyboard.KEY_O) && Keyboard.isKeyDown(Keyboard.KEY_P)){
+                barrier.switchDoRender(false);
+                player.deleteFromRestrictedZ(-46); //pierwsza przeszkoda
+            }
+            if (Keyboard.isKeyDown(Keyboard.KEY_O) && Keyboard.isKeyDown(Keyboard.KEY_B)){
+                lava.switchDoRender(false);
+                player.deleteFromRestrictedZ(-20); //pierwsza przeszkoda
+            }
+            if (player.getPosition().z > 6){
+                if (reSet) { //do it once
+                    reSet = false;
+                    lava.switchDoRender(true);
+                    lava.setPosition(new Vector3f(90f, -0.2f, 6));
+                    lava.increaseRotation(0, 90f, 0);
+                    spikes.switchDoRender(false);
+                    stone.switchDoRender(false);
+                    int xStart = 105;
+                    for (int i = 0; i < iterator; i++) {
+                        floor[i] = new Entity(floorTexturedModel, new Vector3f(xStart, -0.4f, 6), 0, 90, 0, 1);
+                        walls[i] = new Entity(wallTexturedModel, new Vector3f(xStart, -0.4f, 6), 0, 90, 0, 1);
+                        xStart -= 15;
+                    }
+                }
+            }
             entityRenderer.render(lava,shader);
             entityRenderer.render(spikes,shader);
             entityRenderer.render(stone,shader);
@@ -116,13 +142,9 @@ public class MainGameLoop {
                 entityRenderer.render(walls[i],shader);
                 entityRenderer.render(floor[i],shader);
             }
-            if (Keyboard.isKeyDown(Keyboard.KEY_O) && Keyboard.isKeyDown(Keyboard.KEY_P)){
-                barrier.switchDoRender(false);
-                player.deleteFromRestrictedZ(-44);
-            }
             entityRenderer.render(barrier,shader);
             shader.stop();
-
+            System.out.println(player.getPosition());
             DisplayManager.updateDisplay();
         }
         shader.cleanUp();

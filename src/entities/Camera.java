@@ -11,6 +11,7 @@ public class Camera {
     private float pitch = 20;
     private float yaw = 0;
     private float roll;
+    private boolean fps;
 
     private float distanceFromPlayer = 5;
     private float angleAroundPlayer = 0;
@@ -19,6 +20,7 @@ public class Camera {
 
     public Camera(Player player) {
         this.player = player;
+        fps = false;
     }
 
     public void move(){
@@ -29,13 +31,25 @@ public class Camera {
         calcCameraPos(horiDistance,vertDistance);
         this.yaw = 180 - (player.getRotY() + angleAroundPlayer);
 
-        //reset kamery
-        if (Keyboard.isKeyDown(Keyboard.KEY_R)){
+        //tryb 3os
+        if (Keyboard.isKeyDown(Keyboard.KEY_2)){
+            fps = false;
             angleAroundPlayer = 0;
+            distanceFromPlayer = 5;
             pitch = 20;
             yaw = 0;
         }
+        //tryb fps
+        if (Keyboard.isKeyDown(Keyboard.KEY_1)){
+            fps = true;
+            angleAroundPlayer = 0;
+            distanceFromPlayer = -0.5f;
+            pitch = 0;
+            yaw = 0;
+        }
+
     }
+
 
     public Vector3f getPosition() {
         return position;
@@ -60,6 +74,7 @@ public class Camera {
         position.x = player.getPosition().x - offsetX;
         position.z = player.getPosition().z - offsetZ;
         position.y = player.getPosition().y + vertic;
+        if (fps) {position.y += 2f;}
     }
 
     private float calcHorizDistance(){
