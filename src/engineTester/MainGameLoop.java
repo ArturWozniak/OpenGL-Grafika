@@ -86,7 +86,7 @@ public class MainGameLoop {
             zStart += 15;
         }
         Entity stone = new Entity(stoneTexturedModel,new Vector3f(102,-1,-5),0,90f,0,1.25f);
-        Entity spikes = new Entity(spikesTexturedModel,new Vector3f(100,-1,5),0,90f,0,1);
+        Entity spikes = new Entity(spikesTexturedModel,new Vector3f(100,-1,4),0,90f,0,1);
         Entity barrier = new Entity(wallTexturedModel,new Vector3f(100,-1,-50),0,90f,0,1);
         Entity lava = new Entity(lavaTexturedModel,new Vector3f(100,-0.2f,-15),180f,0,0,1.7f);
 

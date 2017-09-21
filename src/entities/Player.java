@@ -14,8 +14,8 @@ import java.util.HashSet;
  */
 public class Player extends Entity {
 
-    private ArrayList<Integer> restrictedX = new ArrayList<Integer>();
-    private ArrayList<Integer> restrictedZ = new ArrayList<Integer>();
+    private ArrayList<Integer> restrictedX = new ArrayList<>();
+    private ArrayList<Integer> restrictedZ = new ArrayList<>();
 
     private boolean alreadyJumped = false;
     private static final float RUN_SPEED = 12;
@@ -31,6 +31,7 @@ public class Player extends Entity {
     private float upwardSpeed = 0;
 
     private int NoOfBarriersPassed = 0;
+    private int NoOfBarriersAtX = 0;
 
     public Player(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
         super(model, position, rotX, rotY, rotZ, scale);
@@ -41,11 +42,12 @@ public class Player extends Entity {
         restrictedZ.add(4);
         restrictedZ.add(10);
         restrictedX.add(94);
+        restrictedX.add(60);
             }
 
-    public void move(Vector3f ghostsPositon){
+    public void move(Vector3f ghostsPosition){
         //kolizja 105 i 95 na x wchodzenie na sciany
-        if (getPosition().z < 1.2f) {
+        if (getPosition().z < 1.49f) {
             if ((getPosition().x >= 104)) {
                 setPosition(new Vector3f(103.96f, getPosition().y, getPosition().z));
             } else if ((getPosition().x <= 96)) {
@@ -53,12 +55,24 @@ public class Player extends Entity {
             }
         }
         else {  //tutaj wchodzi dopiero jak zmienia sie w prawo droga
-            NoOfBarriersPassed = 0;
-
-
-
-
-
+            if (restrictedX.size() > 0) {
+                float tempX = restrictedX.get(NoOfBarriersAtX);
+                if (tempX >= 94 && getPosition().x < 95) {
+                    if (alreadyJumped){
+                        //do nothing to skip else
+                    }
+                    else{
+                        //jak przeskoczyl to super
+                        if (getPosition().x > 90 && getPosition().x < 94){
+                            //jak nie to na poczatek
+                            setPosition(new Vector3f(100,getPosition().y,6f));
+                        }
+                        else {
+                            NoOfBarriersAtX++;
+                        }
+                    }
+                }
+            }
             if (getPosition().z < 1.5){
                 setPosition(new Vector3f(getPosition().x, getPosition().y, 1.55f));
             }
@@ -106,8 +120,7 @@ public class Player extends Entity {
             }
 
             //jak wejdzie na ducha
-            Vector3f tempPosition =  ghostsPositon;
-            if ((((int)tempPosition.x == (int)getPosition().x) && ((int)tempPosition.z == (int)getPosition().z)) || (((int)tempPosition.x == ((int)getPosition().x) + 1) && ((int)tempPosition.z == (int)getPosition().z))){
+            if ((((int)ghostsPosition.x == (int)getPosition().x) && ((int)ghostsPosition.z == (int)getPosition().z)) || (((int)ghostsPosition.x == ((int)getPosition().x) + 1) && ((int)ghostsPosition.z == (int)getPosition().z))){
                 setPosition(new Vector3f(100f,0f,-50f));
             }
 
