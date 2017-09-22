@@ -8,7 +8,7 @@ import org.lwjgl.util.vector.Vector3f;
  */
 public class Camera {
     private Vector3f position = new Vector3f(0,0,0);
-    private float pitch = 20;
+    private float pitch = 5;
     private float yaw = 0;
     private float roll;
     private boolean fps;
@@ -20,7 +20,11 @@ public class Camera {
 
     public Camera(Player player) {
         this.player = player;
-        fps = false;
+        fps = true;
+        angleAroundPlayer = 0;
+        distanceFromPlayer = -0.1f;
+        pitch = 0;
+        yaw = 0;
     }
 
     public void move(){
@@ -32,7 +36,7 @@ public class Camera {
         this.yaw = 180 - (player.getRotY() + angleAroundPlayer);
 
         //tryb 3os
-        if (Keyboard.isKeyDown(Keyboard.KEY_2)){
+        if (Keyboard.isKeyDown(Keyboard.KEY_1)){
             fps = false;
             angleAroundPlayer = 0;
             distanceFromPlayer = 5;
@@ -40,16 +44,22 @@ public class Camera {
             yaw = 0;
         }
         //tryb fps
-        if (Keyboard.isKeyDown(Keyboard.KEY_1)){
+        if (Keyboard.isKeyDown(Keyboard.KEY_2)){
             fps = true;
             angleAroundPlayer = 0;
-            distanceFromPlayer = -0.5f;
+            distanceFromPlayer = -0.1f;
             pitch = 0;
             yaw = 0;
         }
 
     }
-
+    public void firstPlayerLook(){
+        fps = true;
+        angleAroundPlayer = 0;
+        distanceFromPlayer = -0.2f;
+        pitch = 0;
+        yaw = 0;
+    }
 
     public Vector3f getPosition() {
         return position;

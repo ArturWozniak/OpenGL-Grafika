@@ -14,6 +14,8 @@ import renderEngine.EntityRenderer;
 import shaders.StaticShader;
 import textures.ModelTexture;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by AW on 2017-08-29.
  */
@@ -73,10 +75,31 @@ public class MainGameLoop {
         Light playersLight = new Light(new Vector3f(10,10,10),new Vector3f(1,1,1));
         Light ghostsLight = new Light(new Vector3f(10,10,10),new Vector3f(0.7f,0.3f,0.3f));
 
+        //napisy
+        ModelData startData = OBJFileLoader.loadOBJ("Start\\start");
+        RawModel startModel = loader.loadToVAO(startData.getVertices(),startData.getTextureCoords(),startData.getNormals(),startData.getIndices());
+        TexturedModel startTexturedModel = new TexturedModel(startModel,new ModelTexture(loader.loadTexture("Start\\start")));
+        ModelData obData = OBJFileLoader.loadOBJ("Ob\\ob");
+        RawModel ObModel = loader.loadToVAO(obData.getVertices(),obData.getTextureCoords(),obData.getNormals(),obData.getIndices());
+        TexturedModel obTexturedModel = new TexturedModel(ObModel,new ModelTexture(loader.loadTexture("Ob\\ob")));
+        ModelData strzalkaData = OBJFileLoader.loadOBJ("Strzalka\\strzalka");
+        RawModel strzalkaModel = loader.loadToVAO(strzalkaData.getVertices(),strzalkaData.getTextureCoords(),strzalkaData.getNormals(),strzalkaData.getIndices());
+        TexturedModel strzalkaTexturedModel = new TexturedModel(strzalkaModel,new ModelTexture(loader.loadTexture("Strzalka\\strzalka")));
+        ModelData wygranaData = OBJFileLoader.loadOBJ("Wygrana\\wygrana");
+        RawModel wygranaModel = loader.loadToVAO(wygranaData.getVertices(),wygranaData.getTextureCoords(),wygranaData.getNormals(),wygranaData.getIndices());
+        TexturedModel wygranaTexturedModel = new TexturedModel(wygranaModel,new ModelTexture(loader.loadTexture("Wygrana\\wygrana")));
 
         //ladowanie
-        Player player = new Player(playerTexturedModel,new Vector3f(100,0,-50),0,0,0,0.4f);
-        Ghost ghost = new Ghost(ghostTexturedModel,new Vector3f(100,-0.5f,-50),0,0,0,0.5f);
+        Player player = new Player(playerTexturedModel,new Vector3f(100,0,-54),0,0,0,0.4f);
+        Ghost ghost = new Ghost(ghostTexturedModel,new Vector3f(100,-0.5f,-50),0,0,0,0.5f,-26,-39);
+        Ghost ghost2 = new Ghost(ghostTexturedModel,new Vector3f(0,0,0),0,0,0,0.6f,10,1);
+        ghost2.switchDoRender(false);
+
+        Entity start = new Entity(startTexturedModel,new Vector3f(100,1,-45),0,90f,0,1);
+        Entity ob = new Entity(obTexturedModel,new Vector3f(100,3.5f,-20),-30f,90f,0,0.5f);
+        Entity strzalka = new Entity(strzalkaTexturedModel,new Vector3f(102,2,10.5f),0,90f,0,0.9f);
+        strzalka.switchDoRender(false);
+        Entity wygrana = new Entity(wygranaTexturedModel,new Vector3f(40,1,6),0,0,0,1f);
 
         Entity floor[] = new Entity[iterator];
         Entity walls[] = new Entity[iterator];
@@ -87,8 +110,7 @@ public class MainGameLoop {
         }
         Entity stone = new Entity(stoneTexturedModel,new Vector3f(102,-1,-5),0,90f,0,1.25f);
         Entity spikes = new Entity(spikesTexturedModel,new Vector3f(100,-1,4),0,90f,0,1);
-        Entity barrier = new Entity(wallTexturedModel,new Vector3f(100,-1,-50),0,90f,0,1);
-        Entity lava = new Entity(lavaTexturedModel,new Vector3f(100,-0.2f,-15),180f,0,0,1.7f);
+        Entity lava = new Entity(lavaTexturedModel,new Vector3f(100,-0.2f,-18.3f),95f,0,0,3f);
 
         //kamera
         Camera camera = new Camera(player);
@@ -106,25 +128,43 @@ public class MainGameLoop {
             shader.loadSkyColour();
             shader.loadLight(playersLight);
             //duch swieci jak w odlegosci 14 max
-            if (!(Math.abs(player.getPosition().z - ghost.getPosition().z) >= 14))
-                shader.loadLight(ghostsLight);
+            if (ghost.getMode() == 1) {
+                if (!(Math.abs(player.getPosition().z - ghost.getPosition().z) >= 12))
+                    shader.loadLight(ghostsLight);
+            }
+            else{
+                if (!(Math.abs(player.getPosition().x - ghost.getPosition().x) >= 10))
+                    shader.loadLight(ghostsLight);
+            }
             shader.loadViewMatrix(camera);
             entityRenderer.render(player,shader);
             entityRenderer.render(ghost,shader);
+            entityRenderer.render(ghost2,shader);
+            ghost2.move();
+            entityRenderer.render(start,shader);
+            entityRenderer.render(ob,shader);
             if (Keyboard.isKeyDown(Keyboard.KEY_O) && Keyboard.isKeyDown(Keyboard.KEY_P)){
-                barrier.switchDoRender(false);
+                start.switchDoRender(false);
                 player.deleteFromRestrictedZ(-46); //pierwsza przeszkoda
             }
             if (Keyboard.isKeyDown(Keyboard.KEY_O) && Keyboard.isKeyDown(Keyboard.KEY_B)){
                 lava.switchDoRender(false);
+                ob.switchDoRender(false);
                 player.deleteFromRestrictedZ(-20); //pierwsza przeszkoda
             }
             if (player.getPosition().z > 6){
                 if (reSet) { //do it once
+                    ghost2.switchDoRender(true);
+                    ghost2.setMode(2);
                     reSet = false;
+                    strzalka.switchDoRender(true);
+                    ghost.setFromTo(10,1);
+                    ghost.setMode(2);
+                    player.setGoingRight(true);
                     lava.switchDoRender(true);
                     lava.setPosition(new Vector3f(90f, -0.2f, 6));
-                    lava.increaseRotation(0, 90f, 0);
+                    lava.increaseRotation(85f, 90f, 0);
+                    lava.setScale(1.7f);
                     spikes.switchDoRender(false);
                     stone.switchDoRender(false);
                     int xStart = 105;
@@ -138,14 +178,28 @@ public class MainGameLoop {
             entityRenderer.render(lava,shader);
             entityRenderer.render(spikes,shader);
             entityRenderer.render(stone,shader);
+            entityRenderer.render(strzalka,shader);
             for (int i = 0; i < iterator; i++) {
                 entityRenderer.render(walls[i],shader);
                 entityRenderer.render(floor[i],shader);
             }
-            entityRenderer.render(barrier,shader);
+            if (player.getPosition().x < 51)
+                camera.firstPlayerLook();
+            if (player.getPosition().x < 50) {
+                entityRenderer.render(wygrana,shader);
+                shader.loadViewMatrix(camera);
+                try {
+                    DisplayManager.updateDisplay();
+                    TimeUnit.SECONDS.sleep(3);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
             shader.stop();
             System.out.println(player.getPosition());
             DisplayManager.updateDisplay();
+
         }
         shader.cleanUp();
         loader.cleanUp();

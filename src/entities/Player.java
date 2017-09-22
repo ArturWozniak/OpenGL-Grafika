@@ -14,10 +14,10 @@ import java.util.HashSet;
  */
 public class Player extends Entity {
 
-    private ArrayList<Integer> restrictedX = new ArrayList<>();
     private ArrayList<Integer> restrictedZ = new ArrayList<>();
 
     private boolean alreadyJumped = false;
+    private boolean goingRight = false;
     private static final float RUN_SPEED = 12;
     private static final float TURN_SPEED = 130;
 
@@ -31,7 +31,6 @@ public class Player extends Entity {
     private float upwardSpeed = 0;
 
     private int NoOfBarriersPassed = 0;
-    private int NoOfBarriersAtX = 0;
 
     public Player(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
         super(model, position, rotX, rotY, rotZ, scale);
@@ -41,13 +40,11 @@ public class Player extends Entity {
         restrictedZ.add(-10);
         restrictedZ.add(4);
         restrictedZ.add(10);
-        restrictedX.add(94);
-        restrictedX.add(60);
             }
 
     public void move(Vector3f ghostsPosition){
         //kolizja 105 i 95 na x wchodzenie na sciany
-        if (getPosition().z < 1.49f) {
+        if (!goingRight) {
             if ((getPosition().x >= 104)) {
                 setPosition(new Vector3f(103.96f, getPosition().y, getPosition().z));
             } else if ((getPosition().x <= 96)) {
@@ -55,56 +52,55 @@ public class Player extends Entity {
             }
         }
         else {  //tutaj wchodzi dopiero jak zmienia sie w prawo droga
-            if (restrictedX.size() > 0) {
-                float tempX = restrictedX.get(NoOfBarriersAtX);
-                if (tempX >= 94 && getPosition().x < 95) {
+
+                if (getPosition().x < 95 && getPosition().x > 89) {
                     if (alreadyJumped){
                         //do nothing to skip else
                     }
                     else{
                         //jak przeskoczyl to super
                         if (getPosition().x > 90 && getPosition().x < 94){
-                            //jak nie to na poczatek
-                            setPosition(new Vector3f(100,getPosition().y,6f));
-                        }
-                        else {
-                            NoOfBarriersAtX++;
+                            //to na poczatek
+                            setPosition(new Vector3f(102,getPosition().y,6f));
                         }
                     }
                 }
+
+            if (getPosition().z < 1.6){
+                setPosition(new Vector3f(getPosition().x, getPosition().y, 1.65f));
             }
-            if (getPosition().z < 1.5){
-                setPosition(new Vector3f(getPosition().x, getPosition().y, 1.55f));
+            if (getPosition().z > 10){
+                setPosition(new Vector3f(getPosition().x,ghostsPosition.y,9.98f));
+            }
+            if ((getPosition().x >= 104)) {
+                setPosition(new Vector3f(103.96f, getPosition().y, getPosition().z));
             }
         }
-
-        // blokowanie z (przeszkoda)
+        if (!goingRight) {
+            // blokowanie z (przeszkoda)
             if (restrictedZ.size() > 0) {
                 float tempZ = restrictedZ.get(NoOfBarriersPassed);
-                if (tempZ == -10){
+                if (tempZ == -10) {
                     if (getPosition().x < 97) {
-                        if (getPosition().z > -4){
+                        if (getPosition().z > -4) {
                             NoOfBarriersPassed++;
                         }
-                    }
-                    else if (tempZ < getPosition().z) {
+                    } else if (tempZ < getPosition().z) {
                         setPosition(new Vector3f(getPosition().x, getPosition().y, tempZ));
                     }
-                }
-                else if (tempZ == 4 || tempZ == -20){
-                    if (alreadyJumped && tempZ == 4){
+                } else if (tempZ == 4 || tempZ == -20) {
+                    if (alreadyJumped && tempZ == 4) {
                         NoOfBarriersPassed++;
-                    }
-                    else if (tempZ < getPosition().z) {
+                    } else if (tempZ < getPosition().z) {
                         setPosition(new Vector3f(getPosition().x, getPosition().y, -50));
                     }
-                }
-                else {
+                } else {
                     if (tempZ < getPosition().z) {
                         setPosition(new Vector3f(getPosition().x, getPosition().y, tempZ));
                     }
                 }
             }
+        }
             checkInputs();
             super.increaseRotation(0, currentTurnSpeed * DisplayManager.getFrameTimeSeconds(), 0);
             float distance = currentSpeed * DisplayManager.getFrameTimeSeconds();
@@ -120,10 +116,14 @@ public class Player extends Entity {
             }
 
             //jak wejdzie na ducha
-            if ((((int)ghostsPosition.x == (int)getPosition().x) && ((int)ghostsPosition.z == (int)getPosition().z)) || (((int)ghostsPosition.x == ((int)getPosition().x) + 1) && ((int)ghostsPosition.z == (int)getPosition().z))){
-                setPosition(new Vector3f(100f,0f,-50f));
+            if ((((int) ghostsPosition.x == (int) getPosition().x) && ((int) ghostsPosition.z == (int) getPosition().z)) || (((int) ghostsPosition.x == ((int) getPosition().x) + 1) && ((int) ghostsPosition.z == (int) getPosition().z))) {
+                setPosition(new Vector3f(100f, 0f, -50f));
             }
 
+    }
+
+    public void setGoingRight(boolean goingRight) {
+        this.goingRight = goingRight;
     }
 
     private void jump(){
