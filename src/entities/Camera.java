@@ -37,22 +37,30 @@ public class Camera {
 
         //tryb 3os
         if (Keyboard.isKeyDown(Keyboard.KEY_1)){
-            fps = false;
-            angleAroundPlayer = 0;
-            distanceFromPlayer = 5;
-            pitch = 20;
-            yaw = 0;
+            thirdPersonLook();
         }
         //tryb fps
         if (Keyboard.isKeyDown(Keyboard.KEY_2)){
-            fps = true;
-            angleAroundPlayer = 0;
-            distanceFromPlayer = -0.1f;
-            pitch = 0;
-            yaw = 0;
+            firstPlayerLook();
+        }
+        if (Keyboard.isKeyDown(Keyboard.KEY_R)){
+            if (fps){
+                firstPlayerLook();
+            }
+            else{
+                thirdPersonLook();
+            }
         }
 
     }
+    public void thirdPersonLook(){
+        fps = false;
+        angleAroundPlayer = 0;
+        distanceFromPlayer = 5;
+        pitch = 20;
+        yaw = 0;
+    }
+
     public void firstPlayerLook(){
         fps = true;
         angleAroundPlayer = 0;

@@ -84,6 +84,7 @@ public class Player extends Entity {
                     if (getPosition().x < 97) {
                         if (getPosition().z > -4) {
                             NoOfBarriersPassed++;
+                            restrictedZ.remove(new Integer(-10));
                         }
                     } else if (tempZ < getPosition().z) {
                         setPosition(new Vector3f(getPosition().x, getPosition().y, tempZ));
