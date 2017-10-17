@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by AW on 2017-08-29.
+ *
+ * VM OPTION! .>> -Djava.library.path=libs\
  */
 public class MainGameLoop {
     public static void main(String[] args) {
